@@ -22,6 +22,10 @@ If you need to use the source code, please go to the [releases (Github)](https:/
 
 Please not to change the repository directly in Github, because Github's repository is mirrored by Gitee。
 
+> [!CAUTION]
+>
+> **This program is no longer actively maintained due to its own design issues. However, you can still submit issues, or initiate pr.** Also, you should be careful about using this software to write large projects.
+
 ## Introduction
 
 Aide Lua is a Lua editor relying on Aide   
@@ -90,6 +94,7 @@ Due to the particularity of AIDE, please download [__AIDE Pro__](https://aidepro
 2. Open the project with AIDE and click `Build Refresh` (Or 'run', 'gradle assembleRelease', recommended).
 3. Click the `repack and install` button of AideLua (or `repack`, but manual signature is required) and install it. Test whether it can be packaged and run normally.
 4. Click the `Run` button of AideLua to test whether the installed application debugging passes normally.
+5. Do not use the Jesse205 library unless necessary.
 
 ## Matters Needing Attention
 

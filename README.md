@@ -19,10 +19,12 @@
 ## 注意 | Alert
 
 如需使用源代码，请进入 [发行版 (Gitee)](https://gitee.com/AideLua/AideLua/releases/latest) 页面下载。   
-If you need to use the source code, please go to the [releases (Github)](https://github.com/AideLua/AideLua/releases/latest) page to download.
 
 请不要在 Github 内直接更改此仓库，因为 Github 的仓库是由 Gitee 镜像过去的。   
-Please not to change the repository directly in Github, because Github's repository is mirrored by Gitee。
+
+> [!CAUTION]
+>
+> **本项目因自身设计问题，已不再积极维护。但您任然可以提交 issues，或者发起 pr。** 另外，您也应该谨慎使用该软件编写大型项目。
 
 ## 简介
 
@@ -100,9 +102,10 @@ Aide Lua 可以帮您从 Androlua+ 转移到 AIDE，再转移到 Android Studio
 ## 注意事项
 
 1. AIDE 必须使用 `AIDE高级设置版本` ，否则无法打开 `重定义Apk路径`
-2. AIDE 必须打开 `重定义Apk路径` ，否则会导致 APK 错误
+2. AIDE 必须打开 `重定义Apk路径` ，否则会导致 APK 获取错误
 3. AIDE 最好关闭 `adrt调试文件`
-4. 不是必须用 AIDE 编译，也可以使用 Android Studio 编译
+4. 可以使用 AIDE 编译，也可以使用 Android Studio 编译
+5. 非必要不要使用 Jesse205 库。
 
 ## 参与贡献
 
