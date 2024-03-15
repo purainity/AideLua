@@ -9,7 +9,7 @@
         android:icon="@mipmap/ic_launcher">
         <intent
             android:action="android.intent.action.VIEW"
-            android:data="https://jesse205.github.io/AideLua/"/>
+            android:data="https://aidelua.github.io/AideLua/"/>
         <categories android:name="android.shortcut.conversation" />
     </shortcut>
     <shortcut
