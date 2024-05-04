@@ -1073,8 +1073,7 @@ function FilesBrowserManager.onCreateContextMenu(menu,view,menuInfo)
               activity.newActivity("main",{filePath},true,int(System.currentTimeMillis()))
             end
            elseif id==Rid.menu_reference then--引用资源
-            local javaR=("R.%s.%s"):format(javaRReference)
-            EditorsManager.actions.paste(javaR)
+            EditorsManager.actions.paste(javaRReference)
           end
         end
       })
@@ -1084,73 +1083,73 @@ end
 
 --初始化
 function FilesBrowserManager.init()
-  --设置下拉刷新监听器
-  swipeRefresh.onRefresh = function()
-    FilesBrowserManager.refresh()
-  end
+--设置下拉刷新监听器
+swipeRefresh.onRefresh = function()
+  FilesBrowserManager.refresh()
+end
 
-  --应用下拉刷新风格
-  MyStyleUtil.applyToSwipeRefreshLayout(swipeRefresh)
+--应用下拉刷新风格
+MyStyleUtil.applyToSwipeRefreshLayout(swipeRefresh)
 
-  adapter=FileListAdapter(item)
-  recyclerView.setAdapter(adapter)
-  layoutManager = LinearLayoutManager()
-  recyclerView.setLayoutManager(layoutManager)
-  recyclerView.addOnScrollListener(RecyclerView.OnScrollListener{
-    onScrolled = function(view, dx, dy)
-      MyAnimationUtil.RecyclerView.onScroll(view, dx, dy, sideAppBarLayout, "LastSideActionBarElevation")
-  end})
-  recyclerView.getViewTreeObserver().addOnGlobalLayoutListener({
-    onGlobalLayout = function()
-      if activity.isFinishing() then return end
-      MyAnimationUtil.RecyclerView.onScroll(recyclerView, 0, 0, sideAppBarLayout, "LastSideActionBarElevation")
-  end})
+adapter=FileListAdapter(item)
+recyclerView.setAdapter(adapter)
+layoutManager = LinearLayoutManager()
+recyclerView.setLayoutManager(layoutManager)
+recyclerView.addOnScrollListener(RecyclerView.OnScrollListener{
+  onScrolled = function(view, dx, dy)
+    MyAnimationUtil.RecyclerView.onScroll(view, dx, dy, sideAppBarLayout, "LastSideActionBarElevation")
+end})
+recyclerView.getViewTreeObserver().addOnGlobalLayoutListener({
+  onGlobalLayout = function()
+    if activity.isFinishing() then return end
+    MyAnimationUtil.RecyclerView.onScroll(recyclerView, 0, 0, sideAppBarLayout, "LastSideActionBarElevation")
+end})
 
-  --路径查看器
-  pathAdapter=FilePathAdapter(pathItem)
-  pathRecyclerView.setAdapter(pathAdapter)
-  pathLayoutManager = LinearLayoutManager()
-  pathLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL)
-  --pathLayoutManager.setStackFromEnd(true)
-  pathRecyclerView.setLayoutManager(pathLayoutManager)
+--路径查看器
+pathAdapter=FilePathAdapter(pathItem)
+pathRecyclerView.setAdapter(pathAdapter)
+pathLayoutManager = LinearLayoutManager()
+pathLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL)
+--pathLayoutManager.setStackFromEnd(true)
+pathRecyclerView.setLayoutManager(pathLayoutManager)
 
-  --长按菜单
-  activity.registerForContextMenu(recyclerView)
-  recyclerView.onCreateContextMenu=function(menu,view,menuInfo)
-    FilesBrowserManager.onCreateContextMenu(menu,view,menuInfo)
-  end
-  recyclerView.setTag({})
+--长按菜单
+activity.registerForContextMenu(recyclerView)
+recyclerView.onCreateContextMenu=function(menu,view,menuInfo)
+  FilesBrowserManager.onCreateContextMenu(menu,view,menuInfo)
+end
+recyclerView.setTag({})
 
-  --判断侧滑开启状态。
-  --如果侧滑为开启状态，那么文件浏览器一定是开启的。
-  --如果侧滑为关闭状态，那么可能处于平板模式下，没有侧滑，需要单独处理
-  openState = drawer.isDrawerOpen(Gravity.LEFT)
-  if openState == false then
-    openState = nil
-  end
-  drawer.addDrawerListener(DrawerLayout.DrawerListener({
-    onDrawerSlide = function(view, slideOffset)
-      if nowDevice ~= "pc" then
-        if slideOffset > 0.5 and not(openState) then
-          openState = true
-         elseif slideOffset <= 0.5 and openState then
-          openState = false
-        end
+--判断侧滑开启状态。
+--如果侧滑为开启状态，那么文件浏览器一定是开启的。
+--如果侧滑为关闭状态，那么可能处于平板模式下，没有侧滑，需要单独处理
+openState = drawer.isDrawerOpen(Gravity.LEFT)
+if openState == false then
+  openState = nil
+end
+drawer.addDrawerListener(DrawerLayout.DrawerListener({
+  onDrawerSlide = function(view, slideOffset)
+    if nowDevice ~= "pc" then
+      if slideOffset > 0.5 and not(openState) then
+        openState = true
+       elseif slideOffset <= 0.5 and openState then
+        openState = false
       end
-    end,
-    onDrawerOpened = function(view)
-      --FilesTabManager.saveFile()--侧滑打开就保存文件
-    end,
-    onDrawerClosed = function(view)
-    end,
-    onDrawerStateChanged = function(newState)
     end
-  }))
+  end,
+  onDrawerOpened = function(view)
+    --FilesTabManager.saveFile()--侧滑打开就保存文件
+  end,
+  onDrawerClosed = function(view)
+  end,
+  onDrawerStateChanged = function(newState)
+  end
+}))
 
-  local dropFileFrameBackground
-  recyclerView.onDrag=function(view,event)
-    local action=event.getAction()
-    switch action do
+local dropFileFrameBackground
+recyclerView.onDrag=function(view,event)
+  local action=event.getAction()
+  switch action do
      case DragEvent.ACTION_DRAG_STARTED then
       local desc=event.getClipDescription()--必须有描述
       if not(desc and ProjectManager.openState) then
