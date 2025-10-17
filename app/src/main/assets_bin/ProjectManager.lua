@@ -92,7 +92,47 @@ function ProjectManager.smartRunProject()
   if openState then
     FilesTabManager.saveAllFiles()
     if getSharedData("moreCompleteRun") then
-      BuildToolUtil.runProject(ProjectManager.nowConfig,ProjectManager.nowPath)
+      --BuildToolUtil.runProject(ProjectManager.nowConfig,ProjectManager.nowPath)
+
+--[[
+      import "buildtools.RePackTool"
+      -- 直接移动 lua 资源文件
+      local tempPath = AppPath.Sdcard..("/Android/media/%s/cache/temp/debugApk"):format(ProjectManager.nowConfig.packageName or activity.getPackageName())
+      LuaUtil.rmDir(File(tempPath))
+      RePackTool.getRePackToolByConfig(ProjectManager.nowConfig).buildLuaResources(ProjectManager.nowConfig,ProjectManager.nowPath,tempPath,nil)
+      --编译Lua
+      local isCompileLua
+      if type(ProjectManager.nowConfig.compileLua)=="nil" then
+        isCompileLua=getSharedData("compileLua")
+       else
+        isCompileLua=ProjectManager.nowConfig.compileLua
+      end
+      if isCompileLua then
+        RePackTool.autoCompileLua(File(tempPath),nil)
+      end
+      -- 运行
+      ProjectManager.runProject(checkSharedActivity("ProjectRunner"),ProjectManager.nowConfig)
+--]]
+      -- 另一个不使用 ProjectRunner 的版本
+      import "buildtools.RePackTool"
+      -- 复制 lua 资源文件
+      local tempPath = AppPath.Sdcard..("/Android/media/%s/cache/debugApk"):format(ProjectManager.nowConfig.packageName or activity.getPackageName())
+      LuaUtil.rmDir(File(tempPath))
+      RePackTool.getRePackToolByConfig(ProjectManager.nowConfig).buildLuaResources(ProjectManager.nowConfig,ProjectManager.nowPath,tempPath,nil)
+      --编译 lua
+      local isCompileLua
+      if type(ProjectManager.nowConfig.compileLua)=="nil" then
+        isCompileLua=getSharedData("compileLua")
+       else
+        isCompileLua=ProjectManager.nowConfig.compileLua
+      end
+      if isCompileLua then
+        RePackTool.autoCompileLua(File(tempPath),nil)
+      end
+      -- 运行
+      ProjectManager.runProject(tempPath.."/assets/main.lua",ProjectManager.nowConfig)
+      --]]
+  
      else
       ProjectManager.runProject()
     end
