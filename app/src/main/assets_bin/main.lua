@@ -265,6 +265,46 @@ function onCreateOptionsMenu(menu)
 
   LoadedMenu = true
   refreshMenusState() -- 刷新Menu状态
+
+  -- 命令栏
+  formatMenu=menu.findItem(R.id.menu_code_format)
+  checkImportMenu=menu.findItem(R.id.menu_code_checkImport)
+  javaApiMenu=menu.findItem(R.id.menu_tools_javaApiViewer)
+  local buttons={
+    {"格式化","formatMenu"},
+    {"导入分析","checkImportMenu"},
+    {"JavaApi","javaApiMenu"},
+    {"二次打包","binMenu"},
+  }
+  local layouts={}
+  local function newCommandButton(text,menu,subMenu)
+    return loadlayout2({
+      AppCompatTextView;
+      onClick=function(view)
+        if _ENV[menu] then
+          onOptionsItemSelected(_ENV[menu])--点击菜单
+        end
+      end;
+      text=text;
+      gravity="center";
+      layout_height="fill";
+      --padding="8dp";
+      --typeface=Typeface.DEFAULT_BOLD;
+      paddingLeft="8dp";
+      paddingRight="8dp";
+      minWidth="40dp";
+      allCaps=false;
+      --padding="16dp";
+      focusable=true;
+      textColor=theme.color.ActionBar.colorControlNormal;
+      background=ThemeUtil.getRippleDrawable(ColorUtils.setAlphaComponent(theme.color.ActionBar.colorControlNormal,0x22));
+    })
+  end
+  for index,content in ipairs(buttons) do
+    commandBar.addView(newCommandButton(content[1],content[2],content[3]))
+  end
+
+
 end
 
 function onOptionsItemSelected(item)

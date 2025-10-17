@@ -23,6 +23,21 @@
       id="appBarLinearLayout";
       layoutTransition=newLayoutTransition();
       {
+        HorizontalScrollView;
+        horizontalScrollBarEnabled=false;
+        layout_width="fill";
+        layout_height="40dp";
+        paddingLeft="8dp";
+        paddingRight="8dp";
+        clipToPadding=false;
+        {
+          LinearLayoutCompat;
+          layout_height="fill";
+          layout_width="fill";
+          id="commandBar";
+        };
+      };
+      {
         FilesTabManager.FilesTabLayoutBuilder;
         layout_width="fill";
         tabMode=TabLayout.MODE_SCROLLABLE;
