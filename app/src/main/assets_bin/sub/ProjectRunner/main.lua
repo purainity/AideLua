@@ -5,10 +5,6 @@ import "android.widget.*"
 import "android.view.*"
 import "java.io.File"
 
-import "themeutil"
-themeutil.applyTheme()
-import "res"
-
 activity.setTitle("Project Runner")
 activity.setContentView(loadlayout("layout"))
 
@@ -117,11 +113,17 @@ function onStart()
   restoreBackup()
 end
 
+local lastBackTime = 0 -- 上次点击返回键时间
 function onKeyUp(keyCode, event)
   if keyCode==KeyEvent.KEYCODE_BACK then
     if not recovering then
-      print("Listening, please do not exit.")
-      return true
+      if (System.currentTimeMillis() - lastBackTime) > 2000 then
+        print("Listening, please do not exit. Tap again to force exit.")
+        lastBackTime = System.currentTimeMillis()
+        return true
+       else
+        print("Forcing exit.")
+      end
     end
   end
 end
@@ -137,17 +139,11 @@ function onInited()
   inited=true
 end
 
-if themeutil.isJesse205Activity then--Jesse205主题没有分割线
-  scrollView.onScrollChange=function(view,l,t,oldl,oldt)
-    MyAnimationUtil.ScrollView.onScrollChange(view,l,t,oldl,oldt,appBarLayout)
-  end
-end
-
 
 thread(function(initEnvFuncStr,BACKUP_TIME)
   assert(load(initEnvFuncStr))(BACKUP_TIME)
 
-  local path=sdCardPath.."/Android/media/"..packageName.."/cache/temp/debugApk"
+  local path=sdCardPath.."/Android/media/"..packageName.."/cache/debugLua"
   printInScreen(INFO_TAG,"Apk unzip path:",path)
   local newMainDir=path.."/assets"
   local newLuaDir=path.."/lua"

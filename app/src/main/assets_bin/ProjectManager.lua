@@ -91,50 +91,30 @@ end
 function ProjectManager.smartRunProject()
   if openState then
     FilesTabManager.saveAllFiles()
+    -- 注意无论采用何种方式运行，都需要将 lua 资源文件复制到目标应用的 media 目录，因为目标应用可能没有权限读取内部共享存储空间中的文件
+    local config = ProjectManager.nowConfig
+    local tempPath = AppPath.Sdcard..("/Android/media/%s/cache/debugLua"):format(config.packageName or activity.getPackageName())
+    -- 清理缓存目录
+    LuaUtil.rmDir(File(tempPath))
+    -- 复制 lua 资源文件
+    BuildTool.buildLuaResources(config,ProjectManager.nowPath,tempPath,nil)
     if getSharedData("moreCompleteRun") then
-      --BuildToolUtil.runProject(ProjectManager.nowConfig,ProjectManager.nowPath)
-
---[[
-      import "buildtools.RePackTool"
-      -- 直接移动 lua 资源文件
-      local tempPath = AppPath.Sdcard..("/Android/media/%s/cache/temp/debugApk"):format(ProjectManager.nowConfig.packageName or activity.getPackageName())
-      LuaUtil.rmDir(File(tempPath))
-      RePackTool.getRePackToolByConfig(ProjectManager.nowConfig).buildLuaResources(ProjectManager.nowConfig,ProjectManager.nowPath,tempPath,nil)
-      --编译Lua
-      local isCompileLua
-      if type(ProjectManager.nowConfig.compileLua)=="nil" then
-        isCompileLua=getSharedData("compileLua")
-       else
-        isCompileLua=ProjectManager.nowConfig.compileLua
-      end
+      -- 使用 ProjectRunner 运行
+      --[[ 编译 lua
+      local isCompileLua = type(config.compileLua)=="nil" and getSharedData("compileLua") or config.compileLua
       if isCompileLua then
-        RePackTool.autoCompileLua(File(tempPath),nil)
+        BuildTool.autoCompileLua(File(tempPath),nil)
       end
-      -- 运行
-      ProjectManager.runProject(checkSharedActivity("ProjectRunner"),ProjectManager.nowConfig)
---]]
-      -- 另一个不使用 ProjectRunner 的版本
-      import "buildtools.RePackTool"
-      -- 复制 lua 资源文件
-      local tempPath = AppPath.Sdcard..("/Android/media/%s/cache/debugApk"):format(ProjectManager.nowConfig.packageName or activity.getPackageName())
-      LuaUtil.rmDir(File(tempPath))
-      RePackTool.getRePackToolByConfig(ProjectManager.nowConfig).buildLuaResources(ProjectManager.nowConfig,ProjectManager.nowPath,tempPath,nil)
-      --编译 lua
-      local isCompileLua
-      if type(ProjectManager.nowConfig.compileLua)=="nil" then
-        isCompileLua=getSharedData("compileLua")
-       else
-        isCompileLua=ProjectManager.nowConfig.compileLua
-      end
-      if isCompileLua then
-        RePackTool.autoCompileLua(File(tempPath),nil)
-      end
-      -- 运行
-      ProjectManager.runProject(tempPath.."/assets/main.lua",ProjectManager.nowConfig)
-      --]]
-  
+      ]]
+      local projectRunnerPath = AppPath.Sdcard..("/Android/media/%s/cache/ProjectRunner"):format(config.packageName or activity.getPackageName())
+      -- 原版的用 AppFunctions 中的 checkSharedActivity 对 ProjectRunner 做了很多检验，这里直接删掉重新复制一遍
+      LuaUtil.rmDir(File(projectRunnerPath))
+      LuaUtil.copyDir(File(activity.getLuaDir("sub/ProjectRunner")), File(projectRunnerPath))
+      -- 启动 ProjectRunner
+      ProjectManager.runProject(projectRunnerPath.."/main.lua", config)
      else
-      ProjectManager.runProject()
+      -- 不使用 ProjectRunner 直接运行
+      ProjectManager.runProject(tempPath.."/assets/main.lua", config)
     end
   end
 end

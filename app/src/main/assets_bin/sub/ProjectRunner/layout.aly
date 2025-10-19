@@ -8,7 +8,6 @@
     padding="8dp";
     gravity="left|top";
     id="textView";
-    textColor=android.res.colorStateList.attr.textColorPrimary;
     layout_height="fill";
     layout_width="fill";
     textIsSelectable=true;

@@ -99,6 +99,7 @@ SubActivityUtil=require "SubActivityUtil"
 MarkdownHelper=require "helper.MarkdownHelper"
 CopyMenuUtil=require "CopyMenuUtil"
 BuildToolUtil=require "buildtools.BuildToolUtil"
+BuildTool=require "BuildTool"
 
 --各种管理器
 FilesBrowserManager=require "FilesBrowserManager"
@@ -276,7 +277,6 @@ function onCreateOptionsMenu(menu)
     {"JavaApi","javaApiMenu"},
     {"二次打包","binMenu"},
   }
-  local layouts={}
   local function newCommandButton(text,menu,subMenu)
     return loadlayout2({
       AppCompatTextView;
