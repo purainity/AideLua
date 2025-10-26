@@ -91,31 +91,47 @@ end
 function ProjectManager.smartRunProject()
   if openState then
     FilesTabManager.saveAllFiles()
-    -- 注意无论采用何种方式运行，都需要将 lua 资源文件复制到目标应用的 media 目录，因为目标应用可能没有权限读取内部共享存储空间中的文件
-    local config = ProjectManager.nowConfig
-    local tempPath = AppPath.Sdcard..("/Android/media/%s/cache/debugLua"):format(config.packageName or activity.getPackageName())
-    -- 清理缓存目录
-    LuaUtil.rmDir(File(tempPath))
-    -- 复制 lua 资源文件
-    BuildTool.buildLuaResources(config, ProjectManager.nowPath, tempPath)
-    if getSharedData("moreCompleteRun") then
-      -- 使用 ProjectRunner 运行
-      --[[ 编译 lua
-      local isCompileLua = type(config.compileLua)=="nil" and getSharedData("compileLua") or config.compileLua
-      if isCompileLua then
-        BuildTool.autoCompileLua(File(tempPath), nil)
+    -- 加载对话框
+    showLoadingDia("准备资源文件", "运行")
+    -- 在新线程中运行
+    activity.newTask(function(configJ, nowPath)
+      require "import"
+      local config=luajava.astable(configJ, true)
+      luajava.clear(configJ)
+      import "jesse205"
+      import "android.content.pm.PackageManager"
+      import "com.jesse205.util.FileUtil"
+      BuildTool=require "BuildTool"
+      -- 注意无论采用何种方式运行，都需要将 lua 资源文件复制到目标应用的 media 目录，因为目标应用可能没有权限读取内部共享存储空间中的文件
+      local tempPath = AppPath.Sdcard..("/Android/media/%s/cache/debugLua"):format(config.packageName or activity.getPackageName())
+      -- 清理缓存目录
+      this.update("清理缓存目录")
+      LuaUtil.rmDir(File(tempPath))
+      -- 复制 lua 资源文件
+      this.update("复制 lua 资源文件")
+      BuildTool.buildLuaResources(config, nowPath, tempPath)
+      if getSharedData("moreCompleteRun") then
+        -- 使用 ProjectRunner 运行
+        this.update("复制 ProjectRunner 资源文件")
+        local projectRunnerPath = AppPath.Sdcard..("/Android/media/%s/cache/ProjectRunner"):format(config.packageName or activity.getPackageName())
+        -- 原版的用 AppFunctions 中的 checkSharedActivity 对 ProjectRunner 做了很多检验，这里直接删掉重新复制一遍
+        LuaUtil.rmDir(File(projectRunnerPath))
+        LuaUtil.copyDir(File(activity.getLuaDir("sub/ProjectRunner")), File(projectRunnerPath))
+        return projectRunnerPath.."/main.lua"
+       else
+        -- 不使用 ProjectRunner 直接运行
+        return tempPath.."/assets/main.lua"
       end
-      ]]
-      local projectRunnerPath = AppPath.Sdcard..("/Android/media/%s/cache/ProjectRunner"):format(config.packageName or activity.getPackageName())
-      -- 原版的用 AppFunctions 中的 checkSharedActivity 对 ProjectRunner 做了很多检验，这里直接删掉重新复制一遍
-      LuaUtil.rmDir(File(projectRunnerPath))
-      LuaUtil.copyDir(File(activity.getLuaDir("sub/ProjectRunner")), File(projectRunnerPath))
-      -- 启动 ProjectRunner
-      ProjectManager.runProject(projectRunnerPath.."/main.lua", config)
-     else
-      -- 不使用 ProjectRunner 直接运行
-      ProjectManager.runProject(tempPath.."/assets/main.lua", config)
-    end
+    end, function(message)
+      -- 更新加载对话框
+      showLoadingDia(message)
+    end, function(path)
+      -- 关闭加载对话框
+      closeLoadingDia()
+      -- 启动对应 activity
+      ProjectManager.runProject(path, ProjectManager.nowConfig)
+    end)
+    .execute({ProjectManager.nowConfig, ProjectManager.nowPath})
   end
 end
 
