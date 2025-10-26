@@ -97,13 +97,13 @@ function ProjectManager.smartRunProject()
     -- 清理缓存目录
     LuaUtil.rmDir(File(tempPath))
     -- 复制 lua 资源文件
-    BuildTool.buildLuaResources(config,ProjectManager.nowPath,tempPath,nil)
+    BuildTool.buildLuaResources(config, ProjectManager.nowPath, tempPath)
     if getSharedData("moreCompleteRun") then
       -- 使用 ProjectRunner 运行
       --[[ 编译 lua
       local isCompileLua = type(config.compileLua)=="nil" and getSharedData("compileLua") or config.compileLua
       if isCompileLua then
-        BuildTool.autoCompileLua(File(tempPath),nil)
+        BuildTool.autoCompileLua(File(tempPath), nil)
       end
       ]]
       local projectRunnerPath = AppPath.Sdcard..("/Android/media/%s/cache/ProjectRunner"):format(config.packageName or activity.getPackageName())

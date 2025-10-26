@@ -218,6 +218,9 @@ function onCreateOptionsMenu(menu)
   closeProjectMenu = menu.findItem(R.id.menu_project_close)
   projectPropertiesMenu = menu.findItem(R.id.menu_project_properties)
   buildMenu = menu.findItem(R.id.menu_project_build)
+  formatMenu = menu.findItem(R.id.menu_code_format)
+  checkImportMenu = menu.findItem(R.id.menu_code_checkImport)
+  javaApiMenu = menu.findItem(R.id.menu_tools_javaApiViewer)
 
   codeMenu = menu.findItem(R.id.subMenu_code)
   toolsMenu = menu.findItem(R.id.subMenu_tools)
@@ -268,14 +271,12 @@ function onCreateOptionsMenu(menu)
   refreshMenusState() -- 刷新Menu状态
 
   -- 命令栏
-  formatMenu=menu.findItem(R.id.menu_code_format)
-  checkImportMenu=menu.findItem(R.id.menu_code_checkImport)
-  javaApiMenu=menu.findItem(R.id.menu_tools_javaApiViewer)
   local buttons={
     {"格式化","formatMenu"},
     {"导入分析","checkImportMenu"},
     {"JavaApi","javaApiMenu"},
     {"二次打包","binMenu"},
+    {"预打包","prebuild"},
   }
   local function newCommandButton(text,menu,subMenu)
     return loadlayout2({
@@ -283,6 +284,13 @@ function onCreateOptionsMenu(menu)
       onClick=function(view)
         if _ENV[menu] then
           onOptionsItemSelected(_ENV[menu])--点击菜单
+        end
+        -- 预打包
+        -- 为了方便这里直接注入了点击事件，后期肯定要修改菜单重写
+        -- TODO 为预打包添加菜单
+        if menu == "prebuild" and ProjectManager.openState then
+          FilesTabManager.saveAllFiles()
+          BuildTool.preBuild(ProjectManager.nowConfig, ProjectManager.nowPath)
         end
       end;
       text=text;

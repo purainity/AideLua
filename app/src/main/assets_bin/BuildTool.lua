@@ -1,9 +1,8 @@
 local BuildTool={}
 BuildTool._ENV=_ENV
 
---复制lua文件
+-- 复制lua文件
 function BuildTool.buildLuaResources(config,projectPath,outputPath)
-  local outputDir=File(outputPath)
   local luaLibsPaths={}
   local assetsPaths={}
   local include=config.include or {"project:app","project:androlua"}
@@ -73,6 +72,20 @@ function BuildTool.autoCompileLua(compileDir,onCompileListener)
         onCompileListener.onDeleted("Deleted "..content.getPath())
       end
     end
+  end
+end
+
+-- 预打包 lua 资源
+function BuildTool.preBuild(config, projectPath)
+  local outputPath = projectPath .. "/app/build/temp-androlua"
+  -- 清理构建目录
+  LuaUtil.rmDir(File(outputPath))
+  -- 复制 lua 资源文件
+  BuildTool.buildLuaResources(config, projectPath, outputPath)
+  -- 编译 lua
+  local isCompileLua = type(config.compileLua) == "nil" and getSharedData("compileLua") or config.compileLua
+  if isCompileLua then
+    BuildTool.autoCompileLua(File(outputPath), nil)
   end
 end
 
