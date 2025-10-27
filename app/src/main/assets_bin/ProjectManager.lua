@@ -99,8 +99,6 @@ function ProjectManager.smartRunProject()
       local config=luajava.astable(configJ, true)
       luajava.clear(configJ)
       import "jesse205"
-      import "android.content.pm.PackageManager"
-      import "com.jesse205.util.FileUtil"
       BuildTool=require "BuildTool"
       -- 注意无论采用何种方式运行，都需要将 lua 资源文件复制到目标应用的 media 目录，因为目标应用可能没有权限读取内部共享存储空间中的文件
       local tempPath = AppPath.Sdcard..("/Android/media/%s/cache/debugLua"):format(config.packageName or activity.getPackageName())

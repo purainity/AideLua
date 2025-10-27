@@ -68,7 +68,7 @@ function initEnv(BACKUP_TIME)
   packageName=activity.getPackageName()
   packageName=packageName
   sdCardPath=Environment.getExternalStorageDirectory().getPath()
-  backupDir=sdCardPath.."/Android/media/"..packageName.."/.aidelua/importantTemp/envbackup/"..tostring(BACKUP_TIME)
+  backupDir=sdCardPath.."/Android/media/"..packageName.."/.aidelua/envbackup/"..tostring(BACKUP_TIME)
   backupMainDir=backupDir.."/files"
   backupLuaDir=backupDir.."/app_lua"
   appMainDir="/data/data/"..packageName.."/files"

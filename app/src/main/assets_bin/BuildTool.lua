@@ -1,7 +1,7 @@
 local BuildTool={}
 BuildTool._ENV=_ENV
 
--- 复制lua文件
+-- 复制 lua 文件
 function BuildTool.buildLuaResources(config,projectPath,outputPath)
   local luaLibsPaths={}
   local assetsPaths={}
@@ -77,16 +77,39 @@ end
 
 -- 预打包 lua 资源
 function BuildTool.preBuild(config, projectPath)
-  local outputPath = projectPath .. "/app/build/temp-androlua"
-  -- 清理构建目录
-  LuaUtil.rmDir(File(outputPath))
-  -- 复制 lua 资源文件
-  BuildTool.buildLuaResources(config, projectPath, outputPath)
-  -- 编译 lua
-  local isCompileLua = type(config.compileLua) == "nil" and getSharedData("compileLua") or config.compileLua
-  if isCompileLua then
-    BuildTool.autoCompileLua(File(outputPath), nil)
-  end
+  -- 加载对话框
+  showLoadingDia("准备资源文件", "预打包")
+  -- 在新线程中运行
+  activity.newTask(function(configJ, projectPath)
+    require "import"
+    local config=luajava.astable(configJ, true)
+    luajava.clear(configJ)
+    import "jesse205"
+    BuildTool=require "BuildTool"
+    local outputPath = projectPath .. "/app/build/temp-androlua"
+    -- 清理构建目录
+    this.update("清理构建目录")
+    LuaUtil.rmDir(File(outputPath))
+    -- 复制 lua 资源文件
+    this.update("复制 lua 资源文件")
+    BuildTool.buildLuaResources(config, projectPath, outputPath)
+    -- 编译 lua
+    local isCompileLua = type(config.compileLua) == "nil" and getSharedData("compileLua") or config.compileLua
+    if isCompileLua then
+      this.update("编译 lua")
+      BuildTool.autoCompileLua(File(outputPath), nil)
+    end
+    return true
+  end, function(message)
+    -- 更新加载对话框
+    showLoadingDia(message)
+  end, function(success)
+    -- 关闭加载对话框
+    closeLoadingDia()
+    -- 显示成功对话框
+    showSimpleDialog("预打包成功", "预打包 lua 资源完成\n请前往 AndroidIDE 使用 Gradle 打包完整 APK。")
+  end)
+  .execute({config, projectPath})
 end
 
 return BuildTool
