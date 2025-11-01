@@ -11,15 +11,15 @@ import "android.text.SpannableString"
 import "android.text.style.ForegroundColorSpan"
 import "android.text.style.BackgroundColorSpan"
 import "android.text.style.TypefaceSpan"
-import "themeutil"
 
-themeutil.applyTheme()
+local AndroidR = luajava.bindClass "android.R"
+local actionBar = activity.getSupportActionBar()
 
 local array = activity.getTheme().obtainStyledAttributes({
-  android.R.attr.textColorPrimary,
-  android.R.attr.textColorSecondary,
-  android.R.attr.colorAccent,
-  android.R.attr.dividerVertical,
+  AndroidR.attr.textColorPrimary,
+  AndroidR.attr.textColorSecondary,
+  AndroidR.attr.colorAccent,
+  AndroidR.attr.dividerVertical,
 })
 textColorPrimary=array.getColor(0,0)
 textColorSecondary=array.getColor(1,0)
@@ -52,7 +52,7 @@ end
 function onOptionsItemSelected(item)
   local id=item.getItemId()
   local title=item.title
-  if id==android.R.id.home then
+  if id==AndroidR.id.home then
     activity.finish()
    elseif item==refreshMenu then
     refreshLog()
@@ -206,12 +206,7 @@ item={
 
 listView=ListView(activity)
 listView.setFastScrollEnabled(true)
-if themeutil.isJesse205Activity then--Jesse205主题没有分割线
-  listView.setDivider(dividerVertical)
-  listView.onScroll=function(view,firstVisibleItem,visibleItemCount,totalItemCount)
-    MyAnimationUtil.ListView.onScroll(view,firstVisibleItem,visibleItemCount,totalItemCount)
-  end
-end
+
 
 adapter=LuaMultiAdapter(activity,item)
 listView.setAdapter(adapter)
@@ -229,11 +224,11 @@ linearParams.height=-1
 linearParams.width=-1
 listView.setLayoutParams(linearParams)
 
-progressBar=ProgressBar(activity,nil,android.R.attr.progressBarStyleLarge)
+progressBar=ProgressBar(activity,nil,AndroidR.attr.progressBarStyleLarge)
 mainLay.addView(progressBar)
 local linearParams=progressBar.getLayoutParams()
-linearParams.height=math.dp2int(72)
-linearParams.width=math.dp2int(72)
+linearParams.height=72
+linearParams.width=72
 linearParams.gravity=Gravity.CENTER
 
 progressBar.setLayoutParams(linearParams)

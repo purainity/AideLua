@@ -221,6 +221,7 @@ function onCreateOptionsMenu(menu)
   formatMenu = menu.findItem(R.id.menu_code_format)
   checkImportMenu = menu.findItem(R.id.menu_code_checkImport)
   javaApiMenu = menu.findItem(R.id.menu_tools_javaApiViewer)
+  logCatMenu = menu.findItem(R.id.menu_tools_logCat)
 
   codeMenu = menu.findItem(R.id.subMenu_code)
   toolsMenu = menu.findItem(R.id.subMenu_tools)
@@ -276,6 +277,7 @@ function onCreateOptionsMenu(menu)
     {"导入分析","checkImportMenu"},
     {"JavaApi","javaApiMenu"},
     {"二次打包","binMenu"},
+    {"日志猫","logCatMenu"},
     {"预打包","prebuild"},
   }
   local function newCommandButton(text,menu,subMenu)
@@ -395,7 +397,13 @@ function onOptionsItemSelected(item)
     startWindmillActivity("Java API")
    case Rid.menu_tools_logCat then -- 日志猫
     if ProjectManager.openState then
-      ProjectManager.runProject(checkSharedActivity("LogCat"))
+
+      local logCatPath = AppPath.Sdcard..("/Android/media/%s/cache/LogCat"):format(ProjectManager.nowConfig.packageName or activity.getPackageName())
+      -- 原版的用 AppFunctions 中的 checkSharedActivity 对 LogCat 做了很多检验，这里直接删掉重新复制一遍
+      LuaUtil.rmDir(File(logCatPath))
+      LuaUtil.copyDir(File(activity.getLuaDir("sub/LogCat")), File(logCatPath))
+      ProjectManager.runProject(logCatPath.."/main.lua")
+
      else
       newSubActivity("LogCat",true)
     end
